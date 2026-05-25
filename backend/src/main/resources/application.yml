@@ -55,3 +55,25 @@ logging:
   level:
     com.ussdplatform: DEBUG
     org.springframework.security: WARN
+
+paystack:
+  secret-key: ${PAYSTACK_SECRET_KEY:sk_test_placeholder}
+  public-key: ${PAYSTACK_PUBLIC_KEY:pk_test_placeholder}
+
+app:
+  base-url: ${APP_BASE_URL:http://localhost:3000}
+  name: USSD Platform
+
+spring:
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    from: ${MAIL_FROM:noreply@ussdplatform.com}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
