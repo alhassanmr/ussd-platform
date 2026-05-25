@@ -43,22 +43,18 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                // Public: USSD webhook (called by gateways)
                 .requestMatchers("/ussd/webhook/**").permitAll()
-                // Public: Auth endpoints
                 .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
-                // Everything else needs a valid JWT
+                .requestMatchers("/api/admin/login", "/api/admin/setup").permitAll()
+                .requestMatchers("/api/billing/paystack/webhook").permitAll()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
-
         return http.build();
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+    public PasswordEncoder passwordEncoder() { return new BCryptPasswordEncoder(); }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
@@ -76,7 +72,6 @@ public class SecurityConfig {
     @RequiredArgsConstructor
     @Slf4j
     static class JwtAuthFilter extends OncePerRequestFilter {
-
         private final JwtService jwtService;
         private final UserRepository userRepository;
 
@@ -85,19 +80,16 @@ public class SecurityConfig {
                                         HttpServletResponse response,
                                         FilterChain chain) throws ServletException, IOException {
             String header = request.getHeader("Authorization");
-
             if (header != null && header.startsWith("Bearer ")) {
                 String token = header.substring(7);
                 if (jwtService.isValid(token)) {
                     String email = jwtService.extractEmail(token);
                     userRepository.findByEmail(email).ifPresent(user -> {
-                        UsernamePasswordAuthenticationToken auth =
-                                new UsernamePasswordAuthenticationToken(user, null, List.of());
+                        var auth = new UsernamePasswordAuthenticationToken(user, null, List.of());
                         SecurityContextHolder.getContext().setAuthentication(auth);
                     });
                 }
             }
-
             chain.doFilter(request, response);
         }
     }

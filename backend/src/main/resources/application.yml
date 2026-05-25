@@ -77,3 +77,6 @@ spring:
           auth: true
           starttls:
             enable: true
+
+admin:
+  setup-secret: ${ADMIN_SETUP_SECRET:CHANGE_ME_BEFORE_DEPLOY}
