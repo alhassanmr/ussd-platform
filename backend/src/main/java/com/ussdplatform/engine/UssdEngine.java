@@ -7,29 +7,15 @@ import com.ussdplatform.repository.MenuRepository;
 import com.ussdplatform.repository.UssdSessionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
-/**
- * The core USSD processing engine.
- *
- * Flow:
- *  1. Receive normalized UssdRequest
- *  2. Load or create session
- *  3. Determine current menu position
- *  4. Process user input
- *  5. Navigate to next menu item
- *  6. Build and return UssdResponse
- */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -45,10 +31,8 @@ public class UssdEngine {
         log.debug("Processing USSD [{}] session={} input='{}'",
                 app.getName(), request.getSessionId(), request.getInput());
 
-        // Load or create session
         UssdSession session = loadOrCreateSession(app, request);
 
-        // Handle first dial — show root menu
         if (request.isNew() || session.getCurrentMenu() == null) {
             Menu rootMenu = menuRepository.findRootMenuByAppId(app.getId())
                     .orElseThrow(() -> new RuntimeException("No root menu configured for app: " + app.getId()));
@@ -58,7 +42,6 @@ public class UssdEngine {
             return buildMenuResponse(rootMenu, session);
         }
 
-        // Process user input against current menu
         return handleInput(session, request.getInput());
     }
 
@@ -66,12 +49,10 @@ public class UssdEngine {
         Menu currentMenu = session.getCurrentMenu();
         List<MenuItem> items = currentMenu.getItems();
 
-        // Find which item to process based on input
         if (input == null || input.isBlank()) {
             return buildMenuResponse(currentMenu, session);
         }
 
-        // Try to match input as a numbered selection
         try {
             int choice = Integer.parseInt(input.trim());
             if (choice >= 1 && choice <= items.size()) {
@@ -84,7 +65,6 @@ public class UssdEngine {
                         .build();
             }
         } catch (NumberFormatException e) {
-            // Input is free text — find the current INPUT item waiting for it
             MenuItem currentItem = session.getCurrentItem();
             if (currentItem != null && currentItem.getItemType() == MenuItem.ItemType.INPUT) {
                 return processInputItem(currentItem, session, input);
@@ -100,13 +80,12 @@ public class UssdEngine {
         return switch (item.getItemType()) {
             case DISPLAY -> {
                 session.setCurrentItem(item);
-                sessionRepository.save(session);
-                // Navigate to linked menu or show sub-items
                 if (item.getNextMenu() != null) {
                     session.setCurrentMenu(item.getNextMenu());
                     sessionRepository.save(session);
                     yield buildMenuResponse(item.getNextMenu(), session);
                 }
+                sessionRepository.save(session);
                 yield buildMenuResponse(session.getCurrentMenu(), session);
             }
             case INPUT -> {
@@ -138,19 +117,15 @@ public class UssdEngine {
     }
 
     private UssdResponse processInputItem(MenuItem item, UssdSession session, String input) {
-        // Store the input into session data
         if (item.getVariableName() != null) {
             session.getSessionData().put(item.getVariableName(), input);
         }
-
-        // Move to next menu if configured
         if (item.getNextMenu() != null) {
             session.setCurrentMenu(item.getNextMenu());
             session.setCurrentItem(null);
             sessionRepository.save(session);
             return buildMenuResponse(item.getNextMenu(), session);
         }
-
         sessionRepository.save(session);
         return buildMenuResponse(session.getCurrentMenu(), session);
     }
@@ -158,17 +133,16 @@ public class UssdEngine {
     private UssdResponse processWebhook(MenuItem item, UssdSession session) {
         try {
             WebClient client = webClientBuilder.build();
-            String responseBody = client.method(
-                            item.getWebhookMethod().equalsIgnoreCase("GET")
-                                    ? org.springframework.http.HttpMethod.GET
-                                    : org.springframework.http.HttpMethod.POST)
+            String responseBody = client
+                    .method("GET".equalsIgnoreCase(item.getWebhookMethod())
+                            ? org.springframework.http.HttpMethod.GET
+                            : org.springframework.http.HttpMethod.POST)
                     .uri(item.getWebhookUrl())
                     .bodyValue(session.getSessionData())
                     .retrieve()
                     .bodyToMono(String.class)
                     .block();
 
-            // Navigate to next menu after webhook
             if (item.getNextMenu() != null) {
                 session.setCurrentMenu(item.getNextMenu());
                 session.setCurrentItem(null);
@@ -199,26 +173,16 @@ public class UssdEngine {
     private String buildMenuText(Menu menu, UssdSession session) {
         StringBuilder sb = new StringBuilder();
         List<MenuItem> items = menu.getItems();
-
         for (int i = 0; i < items.size(); i++) {
             MenuItem item = items.get(i);
-            if (item.getItemType() == MenuItem.ItemType.END ||
-                item.getItemType() == MenuItem.ItemType.DISPLAY ||
-                item.getItemType() == MenuItem.ItemType.ROUTER ||
-                item.getItemType() == MenuItem.ItemType.WEBHOOK ||
-                item.getItemType() == MenuItem.ItemType.INPUT) {
-                sb.append(i + 1).append(". ").append(
-                        interpolateVariables(item.getLabel(), session.getSessionData()));
-                if (i < items.size() - 1) sb.append("\n");
-            }
+            sb.append(i + 1).append(". ")
+              .append(interpolateVariables(item.getLabel(), session.getSessionData()));
+            if (i < items.size() - 1) sb.append("\n");
         }
         return sb.toString().trim();
     }
 
-    /**
-     * Replace {{variableName}} placeholders in text with session data values.
-     */
-    private String interpolateVariables(String text, java.util.Map<String, String> data) {
+    private String interpolateVariables(String text, Map<String, String> data) {
         if (text == null || data == null) return text;
         for (Map.Entry<String, String> entry : data.entrySet()) {
             text = text.replace("{{" + entry.getKey() + "}}", entry.getValue());

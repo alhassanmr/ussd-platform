@@ -1,5 +1,6 @@
 package com.ussdplatform.security;
 
+import com.ussdplatform.model.AdminUser;
 import com.ussdplatform.model.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -31,6 +32,18 @@ public class JwtService {
                 .claim("userId", user.getId().toString())
                 .claim("tenantId", user.getTenant().getId().toString())
                 .claim("role", user.getRole().name())
+                .claim("type", "tenant")
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + jwtExpiration))
+                .signWith(getKey())
+                .compact();
+    }
+
+    public String generateAdminToken(AdminUser admin) {
+        return Jwts.builder()
+                .subject(admin.getEmail())
+                .claim("adminId", admin.getId().toString())
+                .claim("type", "admin")
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + jwtExpiration))
                 .signWith(getKey())
@@ -39,6 +52,10 @@ public class JwtService {
 
     public String extractEmail(String token) {
         return parseClaims(token).getSubject();
+    }
+
+    public String extractType(String token) {
+        return (String) parseClaims(token).get("type");
     }
 
     public boolean isValid(String token) {

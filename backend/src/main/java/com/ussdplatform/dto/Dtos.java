@@ -13,127 +13,127 @@ import java.util.UUID;
 // ===== Auth =====
 
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
-class RegisterRequest {
-    @NotBlank @Email String email;
-    @NotBlank @Size(min = 6) String password;
-    @NotBlank String fullName;
-    @NotBlank String companyName;
-    String phone;
+public class RegisterRequest {
+    @NotBlank @Email public String email;
+    @NotBlank @Size(min = 6) public String password;
+    @NotBlank public String fullName;
+    @NotBlank public String companyName;
+    public String phone;
 }
 
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
-class LoginRequest {
-    @NotBlank @Email String email;
-    @NotBlank String password;
+public class LoginRequest {
+    @NotBlank @Email public String email;
+    @NotBlank public String password;
 }
 
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
-class AuthResponse {
-    String token;
-    UserDto user;
-    String error;
+public class AuthResponse {
+    public String token;
+    public UserDto user;
+    public String error;
 }
 
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
-class UserDto {
-    UUID id;
-    String email;
-    String fullName;
-    String role;
-    UUID tenantId;
-    String tenantName;
-    String tenantSlug;
-    String plan;
+public class UserDto {
+    public UUID id;
+    public String email;
+    public String fullName;
+    public String role;
+    public UUID tenantId;
+    public String tenantName;
+    public String tenantSlug;
+    public String plan;
 }
 
 // ===== Apps =====
 
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
-class CreateAppRequest {
-    @NotBlank String name;
-    String description;
-    String shortCode;
-    @NotBlank String gatewayType;
-    Map<String, String> gatewayConfig;
+public class CreateAppRequest {
+    @NotBlank public String name;
+    public String description;
+    public String shortCode;
+    @NotBlank public String gatewayType;
+    public Map<String, String> gatewayConfig;
 }
 
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
-class UpdateAppRequest {
-    String name;
-    String description;
-    String shortCode;
-    String status;
-    Map<String, String> gatewayConfig;
+public class UpdateAppRequest {
+    public String name;
+    public String description;
+    public String shortCode;
+    public String status;
+    public Map<String, String> gatewayConfig;
 }
 
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
-class AppDto {
-    UUID id;
-    String name;
-    String description;
-    String shortCode;
-    String gatewayType;
-    String status;
-    LocalDateTime createdAt;
-    LocalDateTime updatedAt;
+public class AppDto {
+    public UUID id;
+    public String name;
+    public String description;
+    public String shortCode;
+    public String gatewayType;
+    public String status;
+    public LocalDateTime createdAt;
+    public LocalDateTime updatedAt;
 }
 
 // ===== Menus =====
 
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
-class CreateMenuRequest {
-    @NotBlank String name;
-    boolean root;
+public class CreateMenuRequest {
+    @NotBlank public String name;
+    public boolean root;
 }
 
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
-class UpdateMenuRequest {
-    String name;
-    boolean root;
+public class UpdateMenuRequest {
+    public String name;
+    public boolean root;
 }
 
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
-class MenuDto {
-    UUID id;
-    String name;
-    boolean root;
-    List<MenuItemDto> items;
-    LocalDateTime createdAt;
+public class MenuDto {
+    public UUID id;
+    public String name;
+    public boolean root;
+    public List<MenuItemDto> items;
+    public LocalDateTime createdAt;
 }
 
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
-class CreateMenuItemRequest {
-    @NotBlank String itemType;
-    @NotBlank String label;
-    String inputPrompt;
-    String variableName;
-    UUID nextMenuId;
-    String webhookUrl;
-    String webhookMethod;
-    String endMessage;
-    int displayOrder;
+public class CreateMenuItemRequest {
+    @NotBlank public String itemType;
+    @NotBlank public String label;
+    public String inputPrompt;
+    public String variableName;
+    public UUID nextMenuId;
+    public String webhookUrl;
+    public String webhookMethod;
+    public String endMessage;
+    public int displayOrder;
 }
 
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
-class UpdateMenuItemRequest {
-    String label;
-    String inputPrompt;
-    String variableName;
-    UUID nextMenuId;
-    String webhookUrl;
-    String endMessage;
-    Integer displayOrder;
+public class UpdateMenuItemRequest {
+    public String label;
+    public String inputPrompt;
+    public String variableName;
+    public UUID nextMenuId;
+    public String webhookUrl;
+    public String endMessage;
+    public Integer displayOrder;
 }
 
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
-class MenuItemDto {
-    UUID id;
-    String itemType;
-    String label;
-    String inputPrompt;
-    String variableName;
-    UUID nextMenuId;
-    String webhookUrl;
-    String endMessage;
-    int displayOrder;
+public class MenuItemDto {
+    public UUID id;
+    public String itemType;
+    public String label;
+    public String inputPrompt;
+    public String variableName;
+    public UUID nextMenuId;
+    public String webhookUrl;
+    public String endMessage;
+    public int displayOrder;
 }
