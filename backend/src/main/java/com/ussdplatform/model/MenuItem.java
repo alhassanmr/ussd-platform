@@ -13,7 +13,6 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-@Builder
 public class MenuItem {
 
     @Id
@@ -30,11 +29,9 @@ public class MenuItem {
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
     @OrderBy("displayOrder ASC")
-    @Builder.Default
     private List<MenuItem> children = new ArrayList<>();
 
     @Column(name = "display_order")
-    @Builder.Default
     private int displayOrder = 0;
 
     @Enumerated(EnumType.STRING)
@@ -58,28 +55,66 @@ public class MenuItem {
     private String webhookUrl;
 
     @Column(name = "webhook_method")
-    @Builder.Default
     private String webhookMethod = "POST";
 
     @Column(name = "end_message")
     private String endMessage;
 
     @Column(name = "created_at", updatable = false)
-    @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "updated_at")
-    @Builder.Default
     private LocalDateTime updatedAt = LocalDateTime.now();
 
     @PreUpdate
     void onUpdate() { this.updatedAt = LocalDateTime.now(); }
 
-    public enum ItemType {
-        DISPLAY,
-        INPUT,
-        ROUTER,
-        WEBHOOK,
-        END
+    // Manual builder to avoid @Builder + @Builder.Default conflicts with @AllArgsConstructor
+    public static MenuItemBuilder builder() { return new MenuItemBuilder(); }
+
+    public static class MenuItemBuilder {
+        private UUID id;
+        private Menu menu;
+        private MenuItem parent;
+        private List<MenuItem> children = new ArrayList<>();
+        private int displayOrder = 0;
+        private ItemType itemType;
+        private String label;
+        private String inputPrompt;
+        private String variableName;
+        private Menu nextMenu;
+        private String webhookUrl;
+        private String webhookMethod = "POST";
+        private String endMessage;
+        private LocalDateTime createdAt = LocalDateTime.now();
+        private LocalDateTime updatedAt = LocalDateTime.now();
+
+        public MenuItemBuilder id(UUID v) { this.id = v; return this; }
+        public MenuItemBuilder menu(Menu v) { this.menu = v; return this; }
+        public MenuItemBuilder parent(MenuItem v) { this.parent = v; return this; }
+        public MenuItemBuilder children(List<MenuItem> v) { this.children = v; return this; }
+        public MenuItemBuilder displayOrder(int v) { this.displayOrder = v; return this; }
+        public MenuItemBuilder itemType(ItemType v) { this.itemType = v; return this; }
+        public MenuItemBuilder label(String v) { this.label = v; return this; }
+        public MenuItemBuilder inputPrompt(String v) { this.inputPrompt = v; return this; }
+        public MenuItemBuilder variableName(String v) { this.variableName = v; return this; }
+        public MenuItemBuilder nextMenu(Menu v) { this.nextMenu = v; return this; }
+        public MenuItemBuilder webhookUrl(String v) { this.webhookUrl = v; return this; }
+        public MenuItemBuilder webhookMethod(String v) { this.webhookMethod = v; return this; }
+        public MenuItemBuilder endMessage(String v) { this.endMessage = v; return this; }
+
+        public MenuItem build() {
+            MenuItem m = new MenuItem();
+            m.id = id; m.menu = menu; m.parent = parent;
+            m.children = children; m.displayOrder = displayOrder;
+            m.itemType = itemType; m.label = label;
+            m.inputPrompt = inputPrompt; m.variableName = variableName;
+            m.nextMenu = nextMenu; m.webhookUrl = webhookUrl;
+            m.webhookMethod = webhookMethod; m.endMessage = endMessage;
+            m.createdAt = createdAt; m.updatedAt = updatedAt;
+            return m;
+        }
     }
+
+    public enum ItemType { DISPLAY, INPUT, ROUTER, WEBHOOK, END }
 }
