@@ -7,6 +7,7 @@ import com.ussdplatform.notification.NotificationService;
 import com.ussdplatform.repository.InvoiceRepository;
 import com.ussdplatform.repository.PlanRepository;
 import com.ussdplatform.repository.SubscriptionRepository;
+import com.ussdplatform.repository.TenantRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,6 +31,7 @@ public class PaystackBillingService {
     private final SubscriptionRepository subscriptionRepo;
     private final InvoiceRepository invoiceRepo;
     private final PlanRepository planRepo;
+    private final TenantRepository tenantRepo;
     private final NotificationService notificationService;
     private final ObjectMapper objectMapper;
 
@@ -151,10 +153,10 @@ public class PaystackBillingService {
     }
 
     private void activateSubscription(UUID tenantId, Plan plan, String paystackCustomerId) {
+        Tenant tenant = tenantRepo.findById(tenantId)
+                .orElseThrow(() -> new RuntimeException("Tenant not found: " + tenantId));
         Subscription sub = subscriptionRepo.findByTenantId(tenantId)
-                .orElseGet(() -> Subscription.builder()
-                        .tenant(Tenant.builder().id(tenantId).build())
-                        .build());
+                .orElseGet(() -> Subscription.builder().tenant(tenant).build());
 
         sub.setPlan(plan);
         sub.setStatus(Subscription.SubscriptionStatus.ACTIVE);

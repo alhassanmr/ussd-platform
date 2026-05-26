@@ -81,7 +81,7 @@ public class NotificationService {
         } catch (Exception e) {
             log.setStatus("FAILED");
             log.setErrorMessage(e.getMessage());
-            this.log.error("Failed to send {} email to {}", type, to, e);
+            log.error("Failed to send {} email to {}", type, to, e);
         }
         notificationLogRepo.save(log);
     }

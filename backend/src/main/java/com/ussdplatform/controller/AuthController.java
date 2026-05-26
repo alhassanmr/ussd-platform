@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,12 +31,10 @@ public class AuthController {
                     .body(new AuthResponse(null, null, "Email already registered"));
         }
 
-        // Create tenant
         String slug = request.getCompanyName().toLowerCase()
                 .replaceAll("[^a-z0-9]", "-")
                 .replaceAll("-+", "-");
 
-        // Ensure slug uniqueness
         String finalSlug = slug;
         int attempt = 0;
         while (tenantRepository.existsBySlug(finalSlug)) {
@@ -52,7 +51,6 @@ public class AuthController {
                 .build();
         tenantRepository.save(tenant);
 
-        // Create owner user
         User user = User.builder()
                 .tenant(tenant)
                 .email(request.getEmail())
@@ -70,8 +68,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElse(null);
+        User user = userRepository.findByEmail(request.getEmail()).orElse(null);
 
         if (user == null || !passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -88,7 +85,7 @@ public class AuthController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<UserDto> me(org.springframework.security.core.annotation.AuthenticationPrincipal User user) {
+    public ResponseEntity<UserDto> me(@AuthenticationPrincipal User user) {
         return ResponseEntity.ok(toUserDto(user));
     }
 
