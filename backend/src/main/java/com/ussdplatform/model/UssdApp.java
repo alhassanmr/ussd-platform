@@ -1,9 +1,9 @@
 package com.ussdplatform.model;
 
-import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.Type;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -35,7 +35,7 @@ public class UssdApp {
     private GatewayType gatewayType;
 
     @Column(name = "gateway_config", columnDefinition = "jsonb")
-    @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.JSON)
+    @JdbcTypeCode(SqlTypes.JSON)
     private Map<String, String> gatewayConfig;
 
     @Enumerated(EnumType.STRING)
