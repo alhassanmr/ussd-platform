@@ -11,7 +11,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "ussd_apps")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter @Setter @NoArgsConstructor @Builder
 public class UssdApp {
 
     @Id
@@ -40,12 +40,15 @@ public class UssdApp {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Builder.Default
     private AppStatus status = AppStatus.DRAFT;
 
     @Column(name = "created_at", updatable = false)
+    @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "updated_at")
+    @Builder.Default
     private LocalDateTime updatedAt = LocalDateTime.now();
 
     @PreUpdate

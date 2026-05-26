@@ -12,7 +12,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "ussd_sessions")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter @Setter @NoArgsConstructor @Builder
 public class UssdSession {
 
     @Id
@@ -39,15 +39,19 @@ public class UssdSession {
 
     @Column(name = "session_data", columnDefinition = "jsonb")
     @JdbcTypeCode(SqlTypes.JSON)
+    @Builder.Default
     private Map<String, String> sessionData = new HashMap<>();
 
     @Enumerated(EnumType.STRING)
+    @Builder.Default
     private SessionStatus status = SessionStatus.ACTIVE;
 
     @Column(name = "started_at", updatable = false)
+    @Builder.Default
     private LocalDateTime startedAt = LocalDateTime.now();
 
     @Column(name = "last_activity")
+    @Builder.Default
     private LocalDateTime lastActivity = LocalDateTime.now();
 
     @Column(name = "ended_at")

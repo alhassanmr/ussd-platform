@@ -12,7 +12,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "invoices")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter @Setter @NoArgsConstructor @Builder
 public class Invoice {
 
     @Id
@@ -35,6 +35,7 @@ public class Invoice {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Builder.Default
     private InvoiceStatus status = InvoiceStatus.PENDING;
 
     @Column(name = "paystack_ref")
@@ -60,6 +61,7 @@ public class Invoice {
     private List<LineItem> lineItems;
 
     @Column(name = "created_at", updatable = false)
+    @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
 
     public enum InvoiceStatus { PENDING, PAID, FAILED, VOID }

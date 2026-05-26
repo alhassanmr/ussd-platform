@@ -2,12 +2,13 @@ package com.ussdplatform.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
 @Table(name = "subscriptions")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter @Setter @NoArgsConstructor @Builder
 public class Subscription {
 
     @Id
@@ -24,6 +25,7 @@ public class Subscription {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Builder.Default
     private SubscriptionStatus status = SubscriptionStatus.TRIAL;
 
     @Column(name = "paystack_customer_id")
@@ -33,18 +35,22 @@ public class Subscription {
     private String paystackSubCode;
 
     @Column(name = "current_period_start")
+    @Builder.Default
     private LocalDateTime currentPeriodStart = LocalDateTime.now();
 
     @Column(name = "current_period_end")
+    @Builder.Default
     private LocalDateTime currentPeriodEnd = LocalDateTime.now().plusDays(30);
 
     @Column(name = "cancelled_at")
     private LocalDateTime cancelledAt;
 
     @Column(name = "created_at", updatable = false)
+    @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "updated_at")
+    @Builder.Default
     private LocalDateTime updatedAt = LocalDateTime.now();
 
     @PreUpdate

@@ -10,7 +10,10 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "menu_items")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@Builder
 public class MenuItem {
 
     @Id
@@ -27,9 +30,11 @@ public class MenuItem {
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
     @OrderBy("displayOrder ASC")
+    @Builder.Default
     private List<MenuItem> children = new ArrayList<>();
 
     @Column(name = "display_order")
+    @Builder.Default
     private int displayOrder = 0;
 
     @Enumerated(EnumType.STRING)
@@ -53,25 +58,28 @@ public class MenuItem {
     private String webhookUrl;
 
     @Column(name = "webhook_method")
+    @Builder.Default
     private String webhookMethod = "POST";
 
     @Column(name = "end_message")
     private String endMessage;
 
     @Column(name = "created_at", updatable = false)
+    @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "updated_at")
+    @Builder.Default
     private LocalDateTime updatedAt = LocalDateTime.now();
 
     @PreUpdate
     void onUpdate() { this.updatedAt = LocalDateTime.now(); }
 
     public enum ItemType {
-        DISPLAY,   // Show text with numbered options
-        INPUT,     // Ask for free-text input
-        ROUTER,    // Route based on input to next menu
-        WEBHOOK,   // Call external API and show response
-        END        // Terminate session with a message
+        DISPLAY,
+        INPUT,
+        ROUTER,
+        WEBHOOK,
+        END
     }
 }

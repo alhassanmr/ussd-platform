@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "menus")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter @Setter @NoArgsConstructor @Builder
 public class Menu {
 
     @Id
@@ -25,16 +25,20 @@ public class Menu {
     private String name;
 
     @Column(name = "is_root")
+    @Builder.Default
     private boolean isRoot = false;
 
     @OneToMany(mappedBy = "menu", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("displayOrder ASC")
+    @Builder.Default
     private List<MenuItem> items = new ArrayList<>();
 
     @Column(name = "created_at", updatable = false)
+    @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "updated_at")
+    @Builder.Default
     private LocalDateTime updatedAt = LocalDateTime.now();
 
     @PreUpdate

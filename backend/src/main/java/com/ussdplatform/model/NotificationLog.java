@@ -2,12 +2,13 @@ package com.ussdplatform.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
 @Table(name = "notification_logs")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter @Setter @NoArgsConstructor @Builder
 public class NotificationLog {
 
     @Id
@@ -27,11 +28,13 @@ public class NotificationLog {
     private String subject;
 
     @Column(nullable = false)
+    @Builder.Default
     private String status = "SENT";
 
     @Column(name = "error_message")
     private String errorMessage;
 
     @Column(name = "sent_at", updatable = false)
+    @Builder.Default
     private LocalDateTime sentAt = LocalDateTime.now();
 }
