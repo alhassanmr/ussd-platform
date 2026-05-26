@@ -87,14 +87,14 @@ public class UssdAppController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteApp(
+    public ResponseEntity<?> deleteApp(
             @AuthenticationPrincipal User user,
             @PathVariable UUID id) {
 
         return appRepository.findByIdAndTenantId(id, user.getTenant().getId())
                 .map(app -> {
                     appRepository.delete(app);
-                    return ResponseEntity.<Void>noContent().build();
+                    return ResponseEntity.noContent().build();
                 })
                 .orElse(ResponseEntity.notFound().build());
     }

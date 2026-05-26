@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "menus")
-@Getter @Setter @NoArgsConstructor @Builder
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor(access = lombok.AccessLevel.PACKAGE) @Builder
 public class Menu {
 
     @Id

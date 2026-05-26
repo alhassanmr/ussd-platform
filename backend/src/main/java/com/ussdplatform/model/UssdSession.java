@@ -12,7 +12,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "ussd_sessions")
-@Getter @Setter @NoArgsConstructor @Builder
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor(access = lombok.AccessLevel.PACKAGE) @Builder
 public class UssdSession {
 
     @Id
